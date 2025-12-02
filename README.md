@@ -40,7 +40,6 @@ Keywords: aoc adventofcode
     8. Pay special attention to f-string usage (rules 2-3) and type hinting restrictions (rules 4-5).
     9. Use a test class structure with fixtures as shown in the example.
       ```python
-
       from my_class_module import Solution
 
       class MyTestClass:
