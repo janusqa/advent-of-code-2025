@@ -46,13 +46,13 @@ Keywords: aoc adventofcode
       class MyTestClass:
         @pytest.fixture
         def solution(self) -> Solution:
-            """Return a Solution instance for testing."""
-            return Solution()
+          """Return a Solution instance for testing."""
+          return Solution()
       ```
     10. The method being tested must literally be named function_under_test when called.
       ```python
-        def my_test_1(self, solution: Solution) -> None
-          solution.function_under_test()
+      def my_test_1(self, solution: Solution) -> None
+        solution.function_under_test()
       ```
     11. Import the Solution class from "my_class_module" as specified.
 
