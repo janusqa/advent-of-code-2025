@@ -39,7 +39,7 @@ Keywords: aoc adventofcode
     7. All test method docstrings must have their first line ending with a period.
     8. Pay special attention to f-string usage (rules 2-3) and type hinting restrictions (rules 4-5).
     9. Use a test class structure with fixtures as shown in the example.
-        ```python
+      ```python
 
       from my_class_module import Solution
 
