@@ -41,7 +41,6 @@ Keywords: aoc adventofcode
     9. Use a test class structure with fixtures as shown in the example.
       
       ```python
-
       from my_class_module import Solution
 
       class MyTestClass:
@@ -49,7 +48,6 @@ Keywords: aoc adventofcode
         def solution(self) -> Solution:
           """Return a Solution instance for testing."""
           return Solution()
-
       ```
 
     10. The method being tested must literally be named function_under_test when called.
@@ -60,7 +58,7 @@ Keywords: aoc adventofcode
         solution.function_under_test()
 
       ```
-      
+
     11. Import the Solution class from "my_class_module" as specified.
 
 
