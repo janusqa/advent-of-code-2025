@@ -53,10 +53,8 @@ Keywords: aoc adventofcode
     10. The method being tested must literally be named function_under_test when called.
       
       ```python
-
       def my_test_1(self, solution: Solution) -> None
         solution.function_under_test()
-
       ```
 
     11. Import the Solution class from "my_class_module" as specified.
