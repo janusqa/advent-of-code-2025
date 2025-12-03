@@ -39,6 +39,7 @@ Keywords: aoc adventofcode
     7. All test method docstrings must have their first line ending with a period.
     8. Pay special attention to f-string usage (rules 2-3) and type hinting restrictions (rules 4-5).
     9. Use a test class structure with fixtures as shown in the example.
+      
       ```python
 
       from my_class_module import Solution
@@ -48,13 +49,18 @@ Keywords: aoc adventofcode
         def solution(self) -> Solution:
           """Return a Solution instance for testing."""
           return Solution()
+
       ```
+
     10. The method being tested must literally be named function_under_test when called.
-      ```python
       
+      ```python
+
       def my_test_1(self, solution: Solution) -> None
         solution.function_under_test()
+
       ```
+      
     11. Import the Solution class from "my_class_module" as specified.
 
 
