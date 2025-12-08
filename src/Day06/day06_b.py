@@ -1,6 +1,3 @@
-import re
-
-
 class Day06B:
     def __init__(self, data: str) -> None:
         self.data = data
