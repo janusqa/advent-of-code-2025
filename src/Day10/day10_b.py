@@ -49,15 +49,20 @@ class Day10B:
         buttons = machine[1]
         joltages = machine[2]
 
-        # Step 1: create integer variables for each button
+        # Step 1: create/initilize z3 solver
+        z3_problem = Optimize()
+
+        # Step 2: create integer variables for each button
         # x represents the times each bunntion is pressed.
         # x[0] is the number of times the first button is pressed and so on
         button_presses = [Int(f"x{i}") for i in range(len(buttons))]
 
-        # Step 2: create/initilize z3 solver
-        z3_problem = Optimize()
+        # Step 3: set contraints on variables. eg. must be greater than or equal to 0
+        # NOTE: with pulp we do this driectly when creating the variables with lowBound etc.
+        for bp in button_presses:
+            z3_problem.add(bp >= 0)
 
-        # Step 3: add constraints for each counter
+        # Step 4: add constraints for each counter
         for i, joltage in enumerate(joltages):
             button_presses_for_joltage = [
                 button_presses[bidx]
@@ -66,11 +71,6 @@ class Day10B:
             ]
             # set up the equation for this joltage
             z3_problem.add(sum(button_presses_for_joltage) == joltage)
-
-        # Step 4: enforce non-negative presses
-        # NOTE: with pulp we do this driectly when creating the variables with lowBound etc.
-        for bp in button_presses:
-            z3_problem.add(bp >= 0)
 
         # Step 5: add the ojective: minimize total presses
         z3_problem.minimize(sum(button_presses))
@@ -99,15 +99,17 @@ class Day10B:
         buttons = machine[1]
         joltages = machine[2]
 
-        # Step 1: create integer variables for each button
+        # Step 1: create/initilize pulp solver
+        lp_problem = LpProblem("Minimize_Button_Presses", LpMinimize)
+
+        # Step 2: create integer variables for each button
         # x represents the times each bunntion is pressed.
         # x[0] is the number of times the first button is pressed and so on
+        # set constraints on variables here as well.  eg. must be greater than or equal to 0
+        # and are integers
         button_presses = [
             LpVariable(f"x{b}", lowBound=0, cat=LpInteger) for b in range(len(buttons))
         ]
-
-        # Step 2: create/initilize pulp solver
-        lp_problem = LpProblem("Minimize_Button_Presses", LpMinimize)
 
         # Step 3: add constraints for each counter
         for i, joltage in enumerate(joltages):
