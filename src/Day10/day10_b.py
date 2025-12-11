@@ -72,7 +72,7 @@ class Day10B:
         for bp in button_presses:
             z3_problem.add(bp >= 0)
 
-        # add the ojective: minimize total presses
+        # Step 5: add the ojective: minimize total presses
         z3_problem.minimize(sum(button_presses))
 
         # Step 6: solve
