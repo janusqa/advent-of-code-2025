@@ -29,3 +29,11 @@ def cardinal_directions(movement: int = 4) -> list[tuple[int, int]]:
     diag = [(1, -1), (1, 1), (-1, 1), (-1, -1)]
 
     return base + diag if movement == 8 else base  # noqa: PLR2004
+
+
+def euclidean(p1: tuple[int, ...], p2: tuple[int, ...]) -> float:
+    return sum((b - a) ** 2 for a, b in zip(p1, p2, strict=True)) ** 0.5
+
+
+def manhattan(p1: tuple[int, ...], p2: tuple[int, ...]) -> int:
+    return sum(abs(b - a) for a, b in zip(p1, p2, strict=True))

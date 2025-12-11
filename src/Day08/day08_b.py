@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from utils import euclidean
 
 
 class Day08B:
@@ -15,7 +15,7 @@ class Day08B:
 
         for i in range(len(boxes)):
             for j in range(i + 1, len(boxes)):
-                distances[(i, j)] = self.euclidan(boxes[i], boxes[j])
+                distances[(i, j)] = euclidean(boxes[i], boxes[j])
 
         sorted_edges = [
             item[0] for item in sorted(distances.items(), key=lambda k: k[1])
@@ -31,9 +31,6 @@ class Day08B:
 
         e1, e2 = self.kruskal(sorted_edges, roots, sizes)
         print(boxes[e1][0] * boxes[e2][0])
-
-    def euclidan(self, p1: Sequence[int], p2: Sequence[int]) -> float:
-        return sum((b - a) ** 2 for a, b in zip(p1, p2, strict=True)) ** 0.5
 
     def kruskal(
         self,

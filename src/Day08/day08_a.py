@@ -1,6 +1,7 @@
 import math
 from collections import deque
-from collections.abc import Sequence
+
+from utils import euclidean
 
 
 class Day08A:
@@ -17,7 +18,7 @@ class Day08A:
 
         for i in range(len(boxes)):
             for j in range(i + 1, len(boxes)):
-                distances[(i, j)] = round(self.euclidan(boxes[i], boxes[j]), 2)
+                distances[(i, j)] = round(euclidean(boxes[i], boxes[j]), 2)
 
         short_list = [
             item[0] for item in sorted(distances.items(), key=lambda k: k[1])
@@ -54,6 +55,3 @@ class Day08A:
                 connected.append(len(c))
 
         print(math.prod(sorted(connected, reverse=True)[:3]))
-
-    def euclidan(self, p1: Sequence[int], p2: Sequence[int]) -> float:
-        return sum((b - a) ** 2 for a, b in zip(p1, p2, strict=True)) ** 0.5

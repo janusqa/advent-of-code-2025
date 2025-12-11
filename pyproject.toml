@@ -5,7 +5,10 @@ description = "Advent of Code 2025"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "matplotlib>=3.10.7",
+    "pulp>=3.3.0",
     "pydantic>=2.11.9",
+    "z3-solver>=4.15.4.0",
 ]
 
 [dependency-groups]
