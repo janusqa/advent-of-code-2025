@@ -15,18 +15,18 @@ class Day11B:
 
         print(
             (
-                self.count_paths("svr", "dac", network, memo)
-                * self.count_paths("dac", "fft", network, memo)
-                * self.count_paths("fft", "out", network, memo)
+                self.dfs("svr", "dac", network, memo)
+                * self.dfs("dac", "fft", network, memo)
+                * self.dfs("fft", "out", network, memo)
             )
             + (
-                self.count_paths("svr", "fft", network, memo)
-                * self.count_paths("fft", "dac", network, memo)
-                * self.count_paths("dac", "out", network, memo)
+                self.dfs("svr", "fft", network, memo)
+                * self.dfs("fft", "dac", network, memo)
+                * self.dfs("dac", "out", network, memo)
             ),
         )
 
-    def count_paths(
+    def dfs(
         self,
         start: str,
         end: str,
@@ -44,7 +44,7 @@ class Day11B:
         paths = 0
 
         for neighbour in network.get(start, []):
-            paths += self.count_paths(neighbour, end, network, memo)
+            paths += self.dfs(neighbour, end, network, memo)
 
         memo[key] = paths
 

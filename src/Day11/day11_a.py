@@ -14,11 +14,11 @@ class Day11A:
         paths = 0
         memo: dict[str, int] = {}
 
-        paths += self.count_paths("you", "out", network, memo)
+        paths += self.dfs("you", "out", network, memo)
 
         print(paths)
 
-    def count_paths(
+    def dfs(
         self,
         start: str,
         end: str,
@@ -36,7 +36,7 @@ class Day11A:
         paths = 0
 
         for neighbour in network.get(start, []):
-            paths += self.count_paths(neighbour, end, network, memo)
+            paths += self.dfs(neighbour, end, network, memo)
 
         memo[key] = paths
 

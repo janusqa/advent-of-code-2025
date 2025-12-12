@@ -74,32 +74,6 @@ class Day09B:
         # print(self.allowed(boundary))
         # self.draw_plot(boundary)
 
-    def draw_line(
-        self,
-        p1: tuple[int, int],
-        p2: tuple[int, int],
-    ) -> list[tuple[int, int]]:
-        x1, y1 = p1
-        x2, y2 = p2
-
-        line: list[tuple[int, int]] = []
-
-        if x1 == x2:
-            start = min(y1, y2) + 1
-            end = max(y1, y2)
-            for p in range(start, end):
-                line.append((x1, p))
-        elif y1 == y2:
-            start = min(x1, x2) + 1
-            end = max(x1, x2)
-            for p in range(start, end):
-                line.append((p, y1))
-        else:
-            msg = f"Points not aligned: {p1} -> {p2}"
-            raise ValueError(msg)
-
-        return line
-
     def allowed_grid(
         self,
         polygon: list[tuple[int, int]],
@@ -133,6 +107,32 @@ class Day09B:
                     row[x] = True
 
         return (allowed, min_x, min_y)
+
+    def draw_line(
+        self,
+        p1: tuple[int, int],
+        p2: tuple[int, int],
+    ) -> list[tuple[int, int]]:
+        x1, y1 = p1
+        x2, y2 = p2
+
+        line: list[tuple[int, int]] = []
+
+        if x1 == x2:
+            start = min(y1, y2) + 1
+            end = max(y1, y2)
+            for p in range(start, end):
+                line.append((x1, p))
+        elif y1 == y2:
+            start = min(x1, x2) + 1
+            end = max(x1, x2)
+            for p in range(start, end):
+                line.append((p, y1))
+        else:
+            msg = f"Points not aligned: {p1} -> {p2}"
+            raise ValueError(msg)
+
+        return line
 
     def draw_plot(
         self,
