@@ -3,4 +3,4 @@ class Day12B:
         self.data = data
 
     def run(self) -> None:
-        pass
+        print("Merry Christmas!")
