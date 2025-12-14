@@ -1,4 +1,6 @@
 import re
+from collections import deque
+from itertools import pairwise
 from math import prod
 
 import matplotlib.pyplot as plt
@@ -14,15 +16,17 @@ class Day09B:
             (int(x), int(y)) for x, y in re.findall(pattern, self.data, re.MULTILINE)
         ]
 
+        lines = [(reds[i], reds[(i + 1) % len(reds)]) for i in range(len(reds))]
+
         pairs = [
             (reds[i], reds[j])
             for i in range(len(reds))
             for j in range(i + 1, len(reds))
         ]
 
-        rectangles: list[tuple[tuple[tuple[int, int], tuple[int, int]], int]] = []
+        rects: list[tuple[tuple[tuple[int, int], tuple[int, int]], int]] = []
         for p1, p2 in pairs:
-            rectangles.append(
+            rects.append(
                 (
                     (p1, p2),
                     prod(
@@ -30,135 +34,183 @@ class Day09B:
                     ),
                 ),
             )
-        rectangles = sorted(rectangles, key=lambda x: x[1], reverse=True)
+        rects = sorted(rects, key=lambda x: x[1], reverse=True)
 
-        boundary: list[tuple[int, int]] = []
-        n = len(reds)
-        for i in range(n):
-            p1 = reds[i]
-            p2 = reds[(i + 1) % n]  # wraps around
-            boundary.extend(self.draw_line(p1, p2))
-            boundary.append(p2)
+        # polygon: list[tuple[int, int]] = []
+        # n = len(reds)
+        # for i in range(n):
+        #     p1 = reds[i]
+        #     p2 = reds[(i + 1) % n]  # wraps around
+        #     polygon.extend(self.draw_line(p1, p2))
+        #     polygon.append(p2)
 
-        allowed, offset_x, offset_y = self.allowed_grid(boundary)
+        # largest = 0
+        # outside = self.outside(set(polygon))
+        # for rect in rects:
+        #     perimeter = self.rect_perimeter(rect[0][0], rect[0][1])
+        #     if not perimeter & outside:
+        #         largest = max(rect[1], largest)
+        #         break
 
-        for (t1, t2), area in rectangles:
-            xmin, xmax = sorted([t1[0], t2[0]])
-            ymin, ymax = sorted([t1[1], t2[1]])
+        # print(largest)
 
-            valid = True
+        largest: tuple[tuple[tuple[int, int], tuple[int, int]], int] | None = None
+        for (a, b), area in rects:
+            # Check if rectangle is completely separated from all polygon edges
+            is_separated = True
+            for line_start, line_end in lines:
+                # Extract coordinates
+                ax, ay = a
+                bx, by = b
+                lx1, ly1 = line_start
+                lx2, ly2 = line_end
 
-            # Check top & bottom edges
-            for x in range(xmin, xmax + 1):
-                if (
-                    not allowed[ymin - offset_y][x - offset_x]
-                    or not allowed[ymax - offset_y][x - offset_x]
-                ):
-                    valid = False
+                # Determine rectangle bounds
+                rect_left = min(ax, bx)
+                rect_right = max(ax, bx)
+                rect_bottom = min(ay, by)
+                rect_top = max(ay, by)
+
+                # Determine line bounds
+                line_left = min(lx1, lx2)
+                line_right = max(lx1, lx2)
+                line_bottom = min(ly1, ly2)
+                line_top = max(ly1, ly2)
+
+                # Check separation
+                left_of_rect = rect_right <= line_left
+                right_of_rect = rect_left >= line_right
+                above_rect = rect_top <= line_bottom
+                below_rect = rect_bottom >= line_top
+
+                # If the line intersects with the rectangle, break
+                if not (left_of_rect or right_of_rect or above_rect or below_rect):
+                    is_separated = False
                     break
 
-            # Check left & right edges
-            if valid:
-                for y in range(ymin + 1, ymax):
-                    if (
-                        not allowed[y - offset_y][xmin - offset_x]
-                        or not allowed[y - offset_y][xmax - offset_x]
-                    ):
-                        valid = False
-                        break
+            if is_separated:
+                largest = ((a, b), area)
+                break
 
-            if valid:
-                print("Largest rectangle found:", (t1, t2), "Area:", area)
-                break  # first valid rectangle is the largest
+        print(largest[1]) if largest else print(0)
 
-        # print(self.allowed(boundary))
-        # self.draw_plot(boundary)
+    # def draw_line(
+    #     self,
+    #     p1: tuple[int, int],
+    #     p2: tuple[int, int],
+    # ) -> list[tuple[int, int]]:
+    #     x1, y1 = p1
+    #     x2, y2 = p2
 
-    def allowed_grid(
-        self,
-        polygon: list[tuple[int, int]],
-    ) -> tuple[list[list[bool]], int, int]:
-        # calculate tight bounding box for polygon.  It will touch the polygon
-        xs = [x for x, y in polygon]
-        ys = [y for x, y in polygon]
-        min_x, max_x = min(xs), max(xs)
-        min_y, max_y = min(ys), max(ys)
+    #     line: list[tuple[int, int]] = []
 
-        # set up an allowed grid based on the bounding box and initialize
-        # every cell to false.
-        width = max_x - min_x + 1
-        height = max_y - min_y + 1
-        # allowed[y][x] will correspond to grid coordinates: (x+min_x, y+min_y)
-        allowed = [[False for _ in range(width)] for _ in range(height)]
+    #     if x1 == x2:
+    #         r = range(y1 + 1, y2) if y2 > y1 else range(y1 - 1, y2, -1)
+    #         for p in r:
+    #             line.append((x1, p))
+    #     elif y1 == y2:
+    #         r = range(x1 + 1, x2) if x2 > x1 else range(x1 - 1, x2, -1)
+    #         for p in r:
+    #             line.append((p, y1))
+    #     else:
+    #         msg = f"Points not aligned: {p1} -> {p2}"
+    #         raise ValueError(msg)
 
-        # on the allowed grid mark all boundary points as True, to indicate that
-        # this point is in the polygon. note we need to off set each point  to line up
-        # with our allowed grid
-        for x, y in polygon:
-            allowed[y - min_y][x - min_x] = True
+    #     return line
 
-        # Fill the interal area of the polygon
-        for y in range(height):
-            row = allowed[y]
-            xs_true = [i for i, v in enumerate(row) if v]
-            if xs_true:
-                xmin_row, xmax_row = min(xs_true), max(xs_true)
-                for x in range(xmin_row, xmax_row + 1):
-                    row[x] = True
+    # def outside(
+    #     self,
+    #     polygon: set[tuple[int, int]],
+    # ) -> set[tuple[int, int]]:
+    #     # Get polygon bounds
+    #     xs = [x for x, _ in polygon]
+    #     ys = [y for _, y in polygon]
+    #     min_x, max_x = min(xs), max(xs)
+    #     min_y, max_y = min(ys), max(ys)
 
-        return (allowed, min_x, min_y)
+    #     # Slightly larger bounding box to start flood fill
+    #     bounding_box = [
+    #         (min_x - 1, min_y - 1),
+    #         (max_x + 1, min_y - 1),
+    #         (max_x + 1, max_y + 1),
+    #         (min_x - 1, max_y + 1),
+    #     ]
+    #     bxs = [x for x, _ in bounding_box]
+    #     bys = [y for _, y in bounding_box]
+    #     bmin_x, bmax_x = min(bxs), max(bxs)
+    #     bmin_y, bmax_y = min(bys), max(bys)
 
-    def draw_line(
-        self,
-        p1: tuple[int, int],
-        p2: tuple[int, int],
-    ) -> list[tuple[int, int]]:
-        x1, y1 = p1
-        x2, y2 = p2
+    #     outside: set[tuple[int, int]] = set()
+    #     queue: deque[tuple[int, int]] = deque()
+    #     visited: set[tuple[int, int]] = set()
 
-        line: list[tuple[int, int]] = []
+    #     queue.append(bounding_box[0])
 
-        if x1 == x2:
-            start = min(y1, y2) + 1
-            end = max(y1, y2)
-            for p in range(start, end):
-                line.append((x1, p))
-        elif y1 == y2:
-            start = min(x1, x2) + 1
-            end = max(x1, x2)
-            for p in range(start, end):
-                line.append((p, y1))
-        else:
-            msg = f"Points not aligned: {p1} -> {p2}"
-            raise ValueError(msg)
+    #     while queue:
+    #         point = queue.popleft()
 
-        return line
+    #         if point in visited:
+    #             continue
+    #         visited.add(point)
 
-    def draw_plot(
-        self,
-        boundary: list[tuple[int, int]],
-    ) -> None:
-        if not boundary:
-            return
+    #         if point in polygon:
+    #             continue
 
-        # 1️⃣ Find min/max to normalize
-        x_coords = [x for x, _ in boundary]
-        y_coords = [y for _, y in boundary]
+    #         outside.add(point)
 
-        # Plot points and connect them in order
+    #         for dx, dy in [(0, -1), (1, 0), (0, 1), (-1, 0)]:
+    #             nx, ny = point[0] + dx, point[1] + dy
+    #             if bmin_x <= nx <= bmax_x and bmin_y <= ny <= bmax_y:
+    #                 queue.append((nx, ny))
 
-        plt.figure(figsize=(12, 12))
-        plt.scatter(x_coords, y_coords, color="red", s=10)
-        plt.plot(
-            x_coords + [x_coords[0]],  # noqa: RUF005
-            y_coords + [y_coords[0]],  # noqa: RUF005
-            color="green",
-            linewidth=1,
-        )
+    #     return outside
 
-        # Optional: invert y-axis to match typical grid orientation
-        plt.gca().invert_yaxis()
+    # def rect_perimeter(
+    #     self,
+    #     p1: tuple[int, int],
+    #     p2: tuple[int, int],
+    # ) -> set[tuple[int, int]]:
+    #     x1, y1 = p1
+    #     x2, y2 = p2
+    #     min_x, max_x = min(x1, x2), max(x1, x2)
+    #     min_y, max_y = min(y1, y2), max(y1, y2)
 
-        # Equal aspect ratio to avoid distortion
-        plt.axis("equal")
-        plt.show()
+    #     perimeter = set()
+    #     # top and bottom edges
+    #     for x in range(min_x, max_x + 1):
+    #         perimeter.add((x, min_y))
+    #         perimeter.add((x, max_y))
+    #     # left and right edges (without corners to avoid double-count)
+    #     for y in range(min_y + 1, max_y):
+    #         perimeter.add((min_x, y))
+    #         perimeter.add((max_x, y))
+    #     return perimeter
+
+    # def draw_plot(
+    #     self,
+    #     boundary: list[tuple[int, int]],
+    # ) -> None:
+    #     if not boundary:
+    #         return
+
+    #     # 1️⃣ Find min/max to normalize
+    #     x_coords = [x for x, _ in boundary]
+    #     y_coords = [y for _, y in boundary]
+
+    #     # Plot points and connect them in order
+
+    #     plt.figure(figsize=(12, 12))
+    #     plt.scatter(x_coords, y_coords, color="red", s=10)
+    #     plt.plot(
+    #         x_coords + [x_coords[0]],  # noqa: RUF005
+    #         y_coords + [y_coords[0]],  # noqa: RUF005
+    #         color="green",
+    #         linewidth=1,
+    #     )
+
+    #     # Optional: invert y-axis to match typical grid orientation
+    #     plt.gca().invert_yaxis()
+
+    #     # Equal aspect ratio to avoid distortion
+    #     plt.axis("equal")
+    #     plt.show()
